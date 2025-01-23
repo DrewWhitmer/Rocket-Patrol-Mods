@@ -110,10 +110,19 @@ class Play extends Phaser.Scene {
             ship.alpha = 1;
             boom.destroy();
         })
-        //score add and text update
+        //score add, timer add, and text update
         this.p1Score += ship.points;
+        this.addTime(game.settings.timerAdder);
         this.scoreLeft.text = this.p1Score;
         //sound
         this.sound.play('sfx-explosion');
+    }
+
+    //change the time of the timer
+    addTime(newScale) {
+        this.clock.timeScale = newScale;
+        this.timer = this.time.delayedCall(500, () => {
+            this.clock.timeScale = 1;
+        }, null, this);
     }
 }
