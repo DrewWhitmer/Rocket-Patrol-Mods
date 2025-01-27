@@ -48,6 +48,7 @@ class Play extends Phaser.Scene {
         //GAME OVER flag
         this.gameOver = false;
 
+
         //60 second play clock
         scoreConfig.fixedWidth = 0;
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
@@ -55,6 +56,7 @@ class Play extends Phaser.Scene {
             this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or <- for Menu', scoreConfig).setOrigin(0.5);
             this.gameOver = true;
         }, null, this);
+        this.speedUp = false;
     }
 
     update() {
@@ -90,6 +92,14 @@ class Play extends Phaser.Scene {
             this.p1Rocket.reset();
             this.shipExplode(this.ship01);
         }
+
+        if(!this.speedUp && this.clock.getElapsedSeconds() >= 30) {
+            this.ship01.moveSpeed *= 1.5;
+            this.ship02.moveSpeed *= 1.5;
+            this.ship03.moveSpeed *= 1.5;
+            this.ship04.moveSpeed *= 1.5;
+            this.speedUp = true;
+        }
     }
 
     //check for collision
@@ -111,7 +121,16 @@ class Play extends Phaser.Scene {
         //create explosion sprite at ship's position
         let boom = this.add.sprite(ship.x, ship.y, 'explosion').setOrigin(0, 0);
         boom.anims.play('explode');
-        boom.on('animationcomplete', () => {
+        const emitter = this.add.particles(ship.x, ship.y, 'spark', {
+            lifespan: 500,
+            speed: {min: 50, max: 150},
+            gravityY: 0,
+            blendMode: 'ADD',
+            emitting: false,
+        });
+        emitter.explode(100);
+        
+        boom.on('animationcomplete', () => {           
             ship.reset();
             ship.alpha = 1;
             boom.destroy();
@@ -121,7 +140,25 @@ class Play extends Phaser.Scene {
         this.addTime(game.settings.timerAdder);
         this.scoreLeft.text = this.p1Score;
         //sound
-        this.sound.play('sfx-explosion');
+        switch(Math.floor(Math.random() * 5)) {
+            case 0:
+                this.sound.play('sfx-explosion-1');
+                break;
+            case 1:
+                this.sound.play('sfx-explosion-2');
+                break;
+            case 2:
+                this.sound.play('sfx-explosion-3');
+                break;
+            case 3:
+                this.sound.play('sfx-explosion-4');
+                break;
+            case 4:
+                this.sound.play('sfx-explosion-5');
+                break;
+            
+        }
+        
     }
 
     //change the time of the timer
